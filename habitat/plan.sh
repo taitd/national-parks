@@ -63,6 +63,10 @@ do_install()
 
     local source_dir="${HAB_CACHE_SRC_PATH}/${pkg_dirname}/${pkg_filename}"  
     local webapps_dir="$(hab pkg path core/tomcat8)/tc/webapps"  
+    
+    echo source_dir="${HAB_CACHE_SRC_PATH}/${pkg_dirname}/${pkg_filename}"  
+    echo webapps_dir="$(hab pkg path core/tomcat8)/tc/webapps"  
+
     cp ${source_dir}/target/${pkg_filename}.war ${webapps_dir}/
 
     # Copy our seed data so that it can be loaded into Mongo using our init hook  
