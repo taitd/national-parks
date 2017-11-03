@@ -9,6 +9,14 @@ pkg_deps=(core/tomcat8 core/mongodb)
 pkg_build_deps=(core/git core/maven)  
 pkg_expose=(8080)  
 pkg_svc_user="root"
+pkg_svc_group="root"
+pkg_exports=(
+  [port]=${pkg_expose}
+)
+pkg_binds=(
+ [database]="port address"
+)
+
 
 do_download()  
 {
@@ -63,14 +71,12 @@ do_install()
 
     local source_dir="${HAB_CACHE_SRC_PATH}/${pkg_dirname}/${pkg_filename}"  
     local webapps_dir="$(hab pkg path core/tomcat8)/tc/webapps"  
-    
-    echo source_dir="${HAB_CACHE_SRC_PATH}/${pkg_dirname}/${pkg_filename}"  
-    echo webapps_dir="$(hab pkg path core/tomcat8)/tc/webapps"  
 
-    cp ${source_dir}/target/${pkg_filename}.war ${webapps_dir}/
+    # Remove "-" from pkg_filename i.e. change national-parks to nationalparks with "//-"
+    cp -vR ${source_dir}/target/${pkg_filename//-}.war ${webapps_dir}/
 
     # Copy our seed data so that it can be loaded into Mongo using our init hook  
-    cp ${source_dir}/national-parks.json $(hab pkg path ${pkg_origin}/national-parks)/  
+    cp -vR ${pkg_filename}/${pkg_filename//-}.json $(hab pkg path ${pkg_origin}/national-parks)/  
 }
 
 do_verify()  
@@ -78,30 +84,3 @@ do_verify()
     build_line "do_verify() ==================================================="  
     return 0  
 }
-
-# pkg_filename="${pkg_name}-${pkg_version}.tar.gz"
-# pkg_shasum="TODO"
-# pkg_deps=(core/glibc)
-# pkg_build_deps=(core/make core/gcc)
-# pkg_lib_dirs=(lib)
-# pkg_include_dirs=(include)
-# pkg_bin_dirs=(bin)
-# pkg_pconfig_dirs=(lib/pconfig)
-# pkg_svc_run="bin/haproxy -f $pkg_svc_config_path/haproxy.conf"
-# pkg_exports=(
-#   [host]=srv.address
-#   [port]=srv.port
-#   [ssl-port]=srv.ssl.port
-# )
-# pkg_exposes=(port ssl-port)
-# pkg_binds=(
-#   [database]="port host"
-# )
-# pkg_binds_optional=(
-#   [storage]="port host"
-# )
-# pkg_interpreters=(bin/bash)
-# pkg_svc_user="hab"
-# pkg_svc_group="$pkg_svc_user"
-# pkg_description="Some description."
-# pkg_upstream_url="http://example.com/project-name"
